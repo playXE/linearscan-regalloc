@@ -1,0 +1,7 @@
+[package]
+name = "re"
+version = "0.1.0"
+authors = ["aprokurov"]
+edition = "2018"
+
+[dependencies]
