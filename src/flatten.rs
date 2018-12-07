@@ -233,6 +233,7 @@ impl<
 
         while queue.len() > 0 {
             let cur = queue.pop_front().unwrap();
+            visited.insert(cur.to_usize());
             if !visited.contains(&cur.to_usize()) {
                 loop {
                     println!("loooooping");

@@ -44,18 +44,19 @@ impl<
         G: GroupHelper<R> + Clone + PartialEq + Eq + Hash,
         R: RegisterHelper<G> + Clone + PartialEq + Eq + Hash,
         K: KindHelper<G, R> + Clone + PartialEq + Eq + Hash,
-    > GapResolver for Graph<K,G,R> {
-        fn resolve_gaps(&mut self) {
-            let mut keys = VecDeque::new();
-            for (id,_) in self.gaps.iter().enumerate() {
-                keys.push_back(InstrId(id));
-            }
-            for id in keys.iter() {
-                let state = self.resolve_gap(id);
-                self.gaps.insert(id.to_usize(),state);
-            }
+    > GapResolver for Graph<K, G, R>
+{
+    fn resolve_gaps(&mut self) {
+        let mut keys = VecDeque::new();
+        for (id, _) in self.gaps.iter().enumerate() {
+            keys.push_back(InstrId(id));
+        }
+        for id in keys.iter() {
+            let state = self.resolve_gap(id);
+            self.gaps.insert(id.to_usize(), state);
         }
     }
+}
 
 impl<
         G: GroupHelper<R> + Clone + PartialEq + Eq + Hash,

@@ -5,3 +5,4 @@ authors = ["aprokurov"]
 edition = "2018"
 
 [dependencies]
+quick_sort = "0.2.1"

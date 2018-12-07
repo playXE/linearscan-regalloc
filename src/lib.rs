@@ -1,8 +1,12 @@
 pub mod api;
 pub mod graph;
 use std::hash::Hash;
+pub mod allocator;
 pub mod flatten;
 pub mod gap;
+pub mod generator;
+pub mod liveness;
+pub mod qsort;
 
 #[derive(Hash, PartialEq, Eq)]
 pub struct SmallIntMap<T: Hash + PartialEq + Eq> {
@@ -78,13 +82,7 @@ impl<T: Hash + PartialEq + Eq> SmallIntMap<T> {
     }
 
     pub fn contains_key(&self, key: &usize) -> bool {
-        let mut contains = false;
-        for value in self.v.iter() {
-            if value.is_some() {
-                contains = true;
-            }
-        }
-        contains
+        self.find(key).is_some()
     }
 
     pub fn insert(&mut self, key: usize, value: T) -> bool {
@@ -254,6 +252,10 @@ impl BitvSet {
 
     pub fn difference_with(&mut self, other: &BitvSet) {
         self.other_op(other, &|w1, w2| w1 & !w2);
+    }
+
+    pub fn iter(&self) -> ::std::slice::Iter<usize> {
+        self.bitv.storage.iter()
     }
 
     /// Symmetric difference in-place with the specified other bit vector
