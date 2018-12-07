@@ -2,6 +2,7 @@ pub mod api;
 pub mod graph;
 use std::hash::Hash;
 pub mod flatten;
+pub mod gap;
 
 #[derive(Hash, PartialEq, Eq)]
 pub struct SmallIntMap<T: Hash + PartialEq + Eq> {

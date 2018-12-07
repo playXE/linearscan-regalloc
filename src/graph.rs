@@ -1,12 +1,11 @@
-use self::GapActionKind::*;
-use self::InstrKind::*;
-use self::UseKind::*;
-use self::Value::*;
+pub use self::GapActionKind::*;
+pub use self::InstrKind::*;
+pub use self::UseKind::*;
+pub use self::Value::*;
 use crate::api::*;
 use crate::BitvSet;
 use crate::SmallIntMap;
 use std::hash::Hash;
-
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct BlockId(pub usize);
 
@@ -101,14 +100,14 @@ pub enum InstrKind<K: Eq + Clone + PartialEq + Hash, G: Eq + Clone + PartialEq +
 
 #[derive(Clone, Eq, PartialEq, Hash)]
 pub struct Interval<G: Eq + Clone + PartialEq + Hash, R: Eq + Clone + PartialEq + Hash> {
-    id: IntervalId,
-    value: Value<G, R>,
-    hint: Option<IntervalId>,
-    ranges: VecDeque<LiveRange>,
-    parent: Option<IntervalId>,
-    uses: VecDeque<Use<G, R>>,
-    children: VecDeque<IntervalId>,
-    fixed: bool,
+    pub id: IntervalId,
+    pub value: Value<G, R>,
+    pub hint: Option<IntervalId>,
+    pub ranges: VecDeque<LiveRange>,
+    pub parent: Option<IntervalId>,
+    pub uses: VecDeque<Use<G, R>>,
+    pub children: VecDeque<IntervalId>,
+    pub fixed: bool,
 }
 
 #[derive(Clone, Debug, Hash, Eq, PartialEq)]
@@ -238,7 +237,7 @@ impl<
         self.intervals.find_mut(&id.to_usize()).unwrap()
     }
 
-    fn get_interval<'r>(&'r self, id: &IntervalId) -> &'r Interval<G, R> {
+    pub fn get_interval<'r>(&'r self, id: &IntervalId) -> &'r Interval<G, R> {
         self.intervals.get(&id.to_usize())
     }
 

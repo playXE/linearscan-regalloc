@@ -81,7 +81,9 @@ impl<
                 let block = self.get_mut_block(&cur);
 
                 if !visited.insert(cur.to_usize()) {
-                    loop {println!("looping")}
+                    loop {
+                        println!("looping")
+                    }
                 }
 
                 if block.loop_depth == expected_depth {
@@ -99,7 +101,7 @@ impl<
         }
     }
 
-    fn flatten_reindex_blocks(&mut self,list: &VecDeque<BlockId>) -> VecDeque<BlockId> {
+    fn flatten_reindex_blocks(&mut self, list: &VecDeque<BlockId>) -> VecDeque<BlockId> {
         let mut block_id = 0;
         let mut queue = VecDeque::new();
         let mut result = VecDeque::new();
@@ -131,11 +133,12 @@ impl<
             /*block.successors = block.successors.iter().map(|succ| {
                 *mapping.find(&succ.to_usize()).expect("successor")
             });*/
-            for (idx,succ) in block.clone().successors.iter().clone().enumerate() {
+            for (idx, succ) in block.clone().successors.iter().clone().enumerate() {
                 block.successors[idx] = mapping.find(&succ.to_usize()).expect("successor").clone();
             }
-            for (idx,pred) in block.clone().predecessors.clone().iter().enumerate() {
-                block.successors[idx] = mapping.find(&pred.to_usize()).expect("predecessor").clone();
+            for (idx, pred) in block.clone().predecessors.clone().iter().enumerate() {
+                block.successors[idx] =
+                    mapping.find(&pred.to_usize()).expect("predecessor").clone();
             }
             //TODO: Rewrite
             /*block.predecessors = block.predecessors.iter().map(|pred| {
@@ -146,8 +149,7 @@ impl<
         return result;
     }
 
-
-    fn flatten_reindex_instructions(&mut self,list: &VecDeque<BlockId>) {
+    fn flatten_reindex_instructions(&mut self, list: &VecDeque<BlockId>) {
         self.instr_id = 0;
         let mut queue = VecDeque::new();
         let mut map = SmallIntMap::new();
@@ -160,7 +162,7 @@ impl<
             new_list.push_back(start_gap.clone().id);
             queue.push_back(start_gap);
 
-            for (i,id) in list.iter().enumerate() {
+            for (i, id) in list.iter().enumerate() {
                 let mut instr = self.instructions.pop(&id.to_usize()).unwrap();
 
                 let id = self.instr_id();
@@ -187,7 +189,10 @@ impl<
 
         let mut i = 0;
         while i < self.phis.len() {
-            let mut phi = self.instructions.pop(&self.phis[i].to_usize()).expect("Phi");
+            let mut phi = self
+                .instructions
+                .pop(&self.phis[i].to_usize())
+                .expect("Phi");
             let id = self.instr_id();
             map.insert(phi.id.to_usize(), id.clone());
             phi.id = id;
@@ -200,7 +205,7 @@ impl<
         while queue.len() > 0 {
             let mut instr = queue.pop_back().unwrap();
 
-            for (idx,input) in instr.clone().inputs.clone().iter().enumerate() {
+            for (idx, input) in instr.clone().inputs.clone().iter().enumerate() {
                 match map.find(&idx) {
                     Some(r) => instr.inputs[idx] = r.clone(),
                     None => instr.inputs[idx] = input.clone(),
@@ -208,6 +213,46 @@ impl<
             }
 
             self.instructions.insert(instr.id.to_usize(), instr);
+        }
+    }
+}
+
+impl<
+        G: GroupHelper<R> + Eq + Clone + PartialEq + Hash,
+        R: RegisterHelper<G> + Eq + Clone + PartialEq + Hash,
+        K: KindHelper<G, R> + Eq + Clone + PartialEq + Hash,
+    > Flatten for Graph<K, G, R>
+{
+    fn flatten(&mut self) {
+        self.flatten_assign_indexes();
+        let root = self.clone().root.expect("Root block");
+        let mut queue = VecDeque::new();
+        queue.push_back(root.clone());
+        let mut list = VecDeque::new();
+        let mut visited = BitvSet::new();
+
+        while queue.len() > 0 {
+            let cur = queue.pop_front().unwrap();
+            if !visited.contains(&cur.to_usize()) {
+                loop {
+                    println!("loooooping");
+                }
+            }
+            list.push_back(cur.clone());
+
+            let successors = self.get_block(&cur).successors.clone();
+            for (idx, succ_id) in successors.iter().enumerate() {
+                let succ = self.get_mut_block(succ_id);
+                if succ.incoming_forward_branches == 0 {
+                    loop {}
+                }
+                succ.incoming_forward_branches -= 1;
+                if succ.incoming_forward_branches == 0 {
+                    queue.remove(idx);
+                }
+            }
+            list = self.flatten_reindex_blocks(&list);
+            self.flatten_reindex_blocks(&list);
         }
     }
 }
